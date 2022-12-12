@@ -30,7 +30,7 @@ import com.ctre.phoenix.sensors.WPI_CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
-public class SwerveModule extends SubsystemBase {
+public class SwerveModule extends SubsystemBase implements AutoCloseable {
     private final CANSparkMax driveMotor;
     private final CANSparkMax turningMotor;
 
@@ -155,5 +155,12 @@ public class SwerveModule extends SubsystemBase {
     @Override
     public void periodic(){
         SmartDashboard.putNumber("Swerve[" + ID + "] encoder position", Units.degreesToRadians(Robot.isSimulation() ? 0 : absoluteEncoder.getAbsolutePosition()));
+    }
+
+    @Override
+    public void close() throws Exception {
+        turningMotor.close();
+        driveMotor.close();
+        
     }
 }

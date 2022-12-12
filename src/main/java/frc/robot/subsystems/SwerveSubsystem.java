@@ -25,7 +25,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.hardware.AbsoluteEncoder.EncoderConfig;
 import frc.robot.hardware.MotorController.MotorConfig;
 
-public class SwerveSubsystem extends SubsystemBase{
+public class SwerveSubsystem extends SubsystemBase implements AutoCloseable{
     private final SwerveModule frontLeft = new SwerveModule(
         MotorConfig.FrontLeftModuleDrive,
         MotorConfig.FrontLeftModuleTurn,
@@ -133,7 +133,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
     private void normalizeDrive(SwerveModuleState[] desiredStates, ChassisSpeeds speeds){
         //Find magnitude of translation input, map to a scale of 1 in order to be comparable to rotation
-        double translationalK = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) / DriveConstants.kPhysicalMaxSpeed;
+        double translationalK = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) / DriveConstants.kPhysicalMaxSpeed; 
         //Find magnitude of rotation input, map to a scale of 1 in order to be comparable to translation
         double rotationalK = Math.abs(speeds.omegaRadiansPerSecond) / DriveConstants.kPhysicalMaxAngularSpeed;
         //Use the larger of the two magnitudes for scaling
@@ -187,5 +187,14 @@ public class SwerveSubsystem extends SubsystemBase{
         odometer.update(getRotation2d(), getModuleStates());
         SmartDashboard.putNumber("Robot Heading", getHeading());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+    }
+
+    @Override
+    public void close() throws Exception {
+        frontLeft.close();
+        frontRight.close();
+        backLeft.close();
+        backRight.close();
+        
     }
 }
