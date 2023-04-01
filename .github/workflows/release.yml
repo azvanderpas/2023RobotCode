@@ -6,9 +6,8 @@ name: release
 # events for main and develop branches
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+  release:
+    types: [created]
 
 permissions:
   contents: write
