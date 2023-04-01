@@ -7,19 +7,28 @@ name: release
 on:
   workflow_dispatch:
   push:
-    branches: 
-      - main 
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  JAVA_VERSION: 1.11
+  GRADLE_VERSION: 7.2
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   deploy:
     name: Prepare Jar & JitPack
-    
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-    
+
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v1
         with:
