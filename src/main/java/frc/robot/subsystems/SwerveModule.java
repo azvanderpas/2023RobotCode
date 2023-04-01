@@ -4,6 +4,13 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.WPI_CANCoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -20,17 +27,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.classes.RelativeEncoderSim;
-import frc.robot.classes.TunableNumber;
 import frc.robot.hardware.AbsoluteEncoder;
-import frc.robot.hardware.MotorController;
 import frc.robot.hardware.AbsoluteEncoder.EncoderConfig;
+import frc.robot.hardware.MotorController;
 import frc.robot.hardware.MotorController.MotorConfig;
 
-import com.ctre.phoenix.sensors.WPI_CANCoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
+
 
 public class SwerveModule extends SubsystemBase {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.5);
@@ -54,7 +56,6 @@ public class SwerveModule extends SubsystemBase {
     private final RelativeEncoderSim simDriveEncoder;
     private final RelativeEncoderSim simTurningEncoder;
 
-    private final TunableNumber tunableP;
     private final SparkMaxPIDController turningPIDController;
     private final PIDController simTurningPIDController;
     private double turningSetpoint;
@@ -65,8 +66,7 @@ public class SwerveModule extends SubsystemBase {
     private DoubleLogEntry desiredSpeedLog;
     private DoubleLogEntry actualSpeedLog;
     private DoubleLogEntry desiredAngleLog;
-    private DoubleLogEntry actualAbsoluteAngleLog;
-    private DoubleLogEntry actualRelativeAngleLog;
+    private DoubleLogEntry actualAngleLog;
     private DoubleLogEntry rotationSpeedLog;
 
     private final String ID;
@@ -75,7 +75,7 @@ public class SwerveModule extends SubsystemBase {
 
         this.ID = ID;
 
-        absoluteEncoder = Robot.isSimulation() ? null : AbsoluteEncoder.constructEncoder(absoluteEncoderConfig);
+        absoluteEncoder = Robot.isSimulation() ? null : AbsoluteEncoder.constructCANCoder(absoluteEncoderConfig);
 
         driveMotor = MotorController.constructMotor(driveMotorConfig);
         turningMotor = MotorController.constructMotor(turningMotorConfig);
@@ -106,15 +106,13 @@ public class SwerveModule extends SubsystemBase {
         turningPIDController.setP(kPTurning);
         simTurningPIDController = new PIDController(turningPIDController.getP(), turningPIDController.getI(), turningPIDController.getD());
         simTurningPIDController.enableContinuousInput(-Math.PI, Math.PI);
-        tunableP = new TunableNumber("Swerve " + ID + " P", kPTurning, turningPIDController::setP);
 
         resetEncoders();
 
         desiredSpeedLog = new DoubleLogEntry(datalog, "/swerve/" + ID +"/setSpeed"); //Logs desired speed in meters per second
         actualSpeedLog = new DoubleLogEntry(datalog, "/swerve/" + ID +"/setSpeed"); //Logs actual speed in meters per second
         desiredAngleLog = new DoubleLogEntry(datalog, "/swerve/" + ID +"/setAngle"); //Logs desired angle in radians
-        actualAbsoluteAngleLog = new DoubleLogEntry(datalog, "/swerve/" + ID +"/actualAbsAngle"); //Logs actual absolute angle in radians
-        actualRelativeAngleLog = new DoubleLogEntry(datalog, "/swerve/" + ID +"/actualRelAngle"); //Logs actual relative angle in radians
+        actualAngleLog = new DoubleLogEntry(datalog, "/swerve/" + ID +"/actualAngle"); //Logs actual relative angle in radians
     }
 
     public SwerveModulePosition getPosition() {
@@ -147,6 +145,9 @@ public class SwerveModule extends SubsystemBase {
     public void resetEncoders() {
         driveEncoder.setPosition(0);
         turningEncoder.setPosition(getAbsoluteTurningPosition());
+        if(Robot.isReal()){
+            absoluteEncoder.close();
+        }
     }
 
     public SwerveModuleState getState() {
@@ -173,9 +174,29 @@ public class SwerveModule extends SubsystemBase {
         desiredSpeedLog.append(desiredState.speedMetersPerSecond);
     }
 
+    public void park(boolean reversed) {
+        stop();
+        if(reversed){
+            //not using calculateSetpoint because these are less than one full rotation
+            turningPIDController.setReference(Math.PI/4, ControlType.kPosition);  
+        } else{
+            turningPIDController.setReference(-Math.PI/4, ControlType.kPosition);
+        }
+    }
+
     public void stop() {
         driveMotor.set(0);
         turningMotor.set(0);
+    }
+
+    public void coast() {
+        driveMotor.setIdleMode(IdleMode.kCoast);
+        turningMotor.setIdleMode(IdleMode.kCoast);
+    }
+
+    public void brake() {
+        driveMotor.setIdleMode(IdleMode.kBrake);
+        turningMotor.setIdleMode(IdleMode.kBrake);
     }
 
     @Override
@@ -197,10 +218,7 @@ public class SwerveModule extends SubsystemBase {
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("Swerve[" + ID + "] absolute encoder position", getAbsoluteTurningPosition());
-        SmartDashboard.putNumber("Swerve[" + ID + "] relative encoder position", getTurningPosition());
         actualSpeedLog.append(driveEncoder.getVelocity());
-        actualAbsoluteAngleLog.append(getAbsoluteTurningPosition());
-        actualRelativeAngleLog.append(getTurningPosition());
+        actualAngleLog.append(getTurningPosition());
     }
 }

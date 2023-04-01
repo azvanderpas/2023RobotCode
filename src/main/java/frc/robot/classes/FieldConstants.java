@@ -9,7 +9,6 @@ package frc.robot.classes;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -55,6 +54,7 @@ public final class FieldConstants {
     // Charging station dimensions
     public static final double chargingStationLength = Units.inchesToMeters(76.125);
     public static final double chargingStationWidth = Units.inchesToMeters(97.25);
+    public static final double chargingStationAngle = 11.0; //Measured in Degrees
     public static final double chargingStationOuterX = outerX - tapeWidth;
     public static final double chargingStationInnerX =
         chargingStationOuterX - chargingStationLength;
@@ -265,7 +265,7 @@ public final class FieldConstants {
       return new Pose2d(
           pose.getX(),
           fieldWidth - pose.getY(),
-          new Rotation2d(0));
+          pose.getRotation());
     } else {
       return pose;
     }

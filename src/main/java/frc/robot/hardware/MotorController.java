@@ -1,6 +1,7 @@
 package frc.robot.hardware;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -13,14 +14,25 @@ public class MotorController {
 
     public static enum MotorConfig {
         //Swerve Modules
-        FrontLeftModuleDrive(4, 50, IdleMode.kBrake),
-        FrontLeftModuleTurn(3, 40, IdleMode.kBrake, true),
+        FrontLeftModuleDrive(20, 50, IdleMode.kBrake),
+        FrontLeftModuleTurn(19, 40, IdleMode.kBrake, true),
         FrontRightModuleDrive(2, 50, IdleMode.kBrake),
         FrontRightModuleTurn(1, 40, IdleMode.kBrake, true),
-        BackLeftModuleDrive(7, 50, IdleMode.kBrake),
-        BackLeftModuleTurn(8, 40, IdleMode.kBrake, true),
-        BackRightModuleDrive(6, 50, IdleMode.kBrake),
-        BackRightModuleTurn(5, 40, IdleMode.kBrake, true);
+        BackLeftModuleDrive(11, 50, IdleMode.kBrake),
+        BackLeftModuleTurn(12, 40, IdleMode.kBrake, true),
+        BackRightModuleDrive(10, 50, IdleMode.kBrake),
+        BackRightModuleTurn(9, 40, IdleMode.kBrake, true),
+        //Arm motors
+        ArmBase1(7, 50, IdleMode.kBrake),
+        ArmBase2(8, 50, IdleMode.kBrake),
+        ArmElbow1(15, 50, IdleMode.kBrake),
+        ArmElbow2(18, 50, IdleMode.kBrake),
+        //Intake motors
+        IntakeMotor1(4, 20, IdleMode.kBrake),
+        IntakeMotor2(5, 20, IdleMode.kBrake),
+        //BuddyBalance Motors
+        BuddyBalanceRight(7, 40, IdleMode.kBrake),
+        BuddyBalanceLeft(8, 40, IdleMode.kBrake, true); // TODO: update IDs for buddy balance motors when robot is finalized
 
         private int ID;
         private int currentLimit;
@@ -92,6 +104,15 @@ public class MotorController {
         motor.setIdleMode(config.getIdleMode());
         motor.setOpenLoopRampRate(config.getOpenLoopRampRate());
         motor.setInverted(config.getReversed());
+        return motor;
+    }
+
+    public static CANSparkMax constructMotor(MotorConfig config, double[] PIDArray){
+        CANSparkMax motor = constructMotor(config);
+        SparkMaxPIDController motorPIDcontroller = motor.getPIDController();
+        motorPIDcontroller.setP(PIDArray[0]);
+        motorPIDcontroller.setI(PIDArray[1]);
+        motorPIDcontroller.setD(PIDArray[2]);
         return motor;
     }
 }
