@@ -1,0 +1,6 @@
+jdk:
+  - openjdk11
+
+install:
+  #- ./gradlew --no-daemon --stacktrace -x dokkaJavadoc -x :reporter-web-app:yarnBuild publishToMavenLocal
+  - ./gradlew publishToMavenLocal
