@@ -19,6 +19,7 @@ def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
+/*
 deploy {
     targets {
         roborio(getTargetTypeClass('RoboRIO')) {
@@ -45,8 +46,9 @@ deploy {
         }
     }
 }
+*/
 
-def deployArtifact = deploy.targets.roborio.artifacts.frcJava
+//def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
 // Set to true to use debug for JNI.
 wpi.java.debugJni = false
@@ -60,12 +62,13 @@ dependencies {
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 
+/*
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
     roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)
 
     roborioRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.roborio)
     roborioRelease wpi.java.vendor.jniRelease(wpi.platforms.roborio)
-
+*/
     nativeDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.desktop)
     nativeDebug wpi.java.vendor.jniDebug(wpi.platforms.desktop)
     simulationDebug wpi.sim.enableDebug()
@@ -114,9 +117,11 @@ jar {
 }
 
 // Configure jar and deploy tasks
+/*
 deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
+*/
 
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
