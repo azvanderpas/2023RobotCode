@@ -172,6 +172,7 @@ gversion {
 }
 java {
 	withSourcesJar()
+	withJavadocJar()
 }
 publishing {
     publications {
