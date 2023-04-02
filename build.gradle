@@ -133,8 +133,7 @@ wpi.java.configureTestTasks(test)
 sourceSets {
    main {
       java {
-         srcDir "src"
-	 exclude "src/test/**"
+         srcDir "src/main"
       }
    }
 }
