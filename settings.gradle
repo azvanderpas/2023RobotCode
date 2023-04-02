@@ -1,6 +1,5 @@
 import org.gradle.internal.os.OperatingSystem
 
-rootProject.name = '2023RobotCode'
 
 pluginManagement {
     repositories {
@@ -27,3 +26,5 @@ pluginManagement {
         }
     }
 }
+
+rootProject.name = '2023RobotCode'
