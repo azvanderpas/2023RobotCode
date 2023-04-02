@@ -24,7 +24,7 @@ public class AssistedBalanceCommand extends CommandBase {
   /**
    * Creates a new AssistedBalanceCommand
    *
-   * @param subsystem The subsystem used by this command.
+   * @param swerveSubsystem The subsystem used by this command.
    */
   public AssistedBalanceCommand(SwerveSubsystem swerveSubsystem, boolean reverse) {
     swerve_subsystem = swerveSubsystem;
